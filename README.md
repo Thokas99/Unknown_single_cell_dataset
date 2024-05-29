@@ -1,5 +1,7 @@
 # Analysis of an unknown single-cell dataset
-Analysis of an unknown single-cell dataset for master QCB curse 
+
+Analysis of an unknown single-cell dataset for [Single Cell and Spatial Omics](https://unitn.coursecatalogue.cineca.it/insegnamenti/2023/95642/2016/9999/10616?annoOrdinamento=2016) class of the QCB master
+
 ## Analysis Workflow
 
 ### 1. Quality Control and Filtering
