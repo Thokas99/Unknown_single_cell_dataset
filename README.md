@@ -30,7 +30,14 @@ Analysis of an unknown single-cell dataset for [Single Cell and Spatial Omics](h
 - **Cluster Annotation**: Annotate clusters based on known marker genes or databases (e.g., CellMarker, PanglaoDB).
 - **Hypothesis Formation**: Formulate a hypothesis about the tissue origin and cell types based on clusters and marker genes.
 
+## Credits
+
+This analysis was conducted using the following R packages:
+- [Seurat](https://satijalab.org/seurat/): An R package designed for QC, analysis, and exploration of single-cell RNA-seq data.
+- [ggplot2](https://ggplot2.tidyverse.org/): An R package for data visualization based on the grammar of graphics.
+- [tidyverse](https://www.tidyverse.org/): A collection of R packages for data manipulation and visualization, including ggplot2.
+
 
 <div align="center">
-  <img src="img/uni_logo.jpg" alt="drawing" width="200"/>
+  <img src="img/uni_logo.jpg" alt="drawing" width="300"/>
 </div>
