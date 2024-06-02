@@ -194,8 +194,9 @@ XUR[["RNA"]]$scale.data[1:5,1:10]
 
 A list of cell cycle markers for the S and G2/M phases,derived from Tirosh et al, 2015, is loaded with Seurat. We can segregate this list into markers of G2/M phase and markers of S phase
 
-```{r cell_cycle_marker_genes,warning=F,message=F}
-
+```{r }
+#| label: cell_cycle_marker_genes
+#| warning: false
 s_genes <- cc.genes$s.genes
 s_genes <- str_to_title(tolower(s_genes))
 
@@ -212,8 +213,9 @@ First, each cell is assigned a score, based on its expression of G2/M and S phas
 
 Scores are assigned in the CellCycleScoring function, which stores S and G2/M scores in object meta data, along with the predicted classification of each cell in either G2M, S or G1 phase. CellCycleScoring can also set the identity of the Seurat object to the cell-cycle phase by passing set.ident = TRUE (the original identities are stored as old.ident). Please note that Seurat does not use the discrete classifications (G2M/G1/S) in downstream cell cycle regression. Instead, it uses the quantitative scores for G2M and S phase. However, the predicted classifications are provided in case they are of interest.
 
-```{r cell_cycle_scores,warning=F,message=F}
-
+```{r }
+#| label: cell_cycle_scores
+#| warning: false
 c_cycle <- CellCycleScoring(XUR, s.features = s_genes, g2m.features = g2m_genes, set.ident = TRUE)
 s_genes %in% rownames(c_cycle)
 g2m_genes %in% rownames(c_cycle)
@@ -230,7 +232,9 @@ RidgePlot(c_cycle, features = c("Hmgb2","Pcna"), ncol = 2) # very low expression
 
 Running a PCA on cell cycle genes confirms that cells separate entirely by phase
 
-```{r ,warning=F,message=F}
+```{r }
+#| label: cell_cycle_PCA
+#| warning: false
 c_cycle <- RunPCA(c_cycle, features = c(s_genes, g2m_genes),verbose=T)
 DimPlot(c_cycle, reduction="pca")
 ```
@@ -242,12 +246,16 @@ We now attempt to subtract ('regress out') this source of heterogeneity from the
 After this regression, a PCA on the variable genes no longer returns components associated with cell cycle (long time step)
 
 ```{r}
+#| label: cell_cycle_Regress
+#| warning: false
 c_cycle <- ScaleData(c_cycle, vars.to.regress = c("S.Score", "G2M.Score"), features = rownames(c_cycle))
 
 c_cycle <- RunPCA(c_cycle, features = VariableFeatures(c_cycle), nfeatures.print = 10)
 ```
 
 ```{r}
+#| label: cell_cycle_PCA2
+#| warning: false
 c_cycle <- RunPCA(c_cycle, features = c(s_genes, g2m_genes))
 
 DimPlot(c_cycle)
@@ -258,8 +266,9 @@ rm(s_genes,g2m_genes,c_cycle)
 
 ### Linear dimensional reduction (PCA)
 
-```{r pca_reduction, warning=F, message=F}
-
+```{r }
+#| label: PCA
+#| warning: false
 XUR <- RunPCA(XUR, 
                features = VariableFeatures(object = XUR),
                verbose = T)
@@ -268,18 +277,23 @@ XUR <- RunPCA(XUR,
 
 Seurat provides several ways of visualizing both cells and features that define the PCA, including VizDimReduction, DimPlot, and DimHeatmap. PCA results are stored in XUR\[\["pca"\]\]
 
-```{r pca_loadings, warning=F, message=F}
+```{r }
+#| label: VizDimLoadings_PCA
+#| warning: false
 VizDimLoadings(XUR, dims = 1:2, reduction = "pca")
 ```
 
-```{r, pca_scatter, warning=F, message=F}
+```{r, }
+#| label: DimPlot_PCA
+#| warning: false
 DimPlot(XUR, reduction = "pca")
 ```
 
 DimHeatmap allows for easy exploration of the primary sources of heterogeneity in a dataset, and can be useful when trying to decide which PCs to include for further downstream analyses. Both cells and features are ordered according to their PCA scores. Setting "cells" to a number plots the 'extreme' cells on both ends of the spectrum, which dramatically speeds plotting for large datasets.
 
 ```{r pca_heatmap, warniheatmapng=F, message=F}
-
+#| label: DimHeatmap
+#| warning: false
 DimHeatmap(XUR, dims = 1:2, 
            cells = 500, 
            balanced = TRUE)
@@ -290,7 +304,9 @@ DimHeatmap(XUR, dims = 1:2,
 
 A heuristic method to decide the number of PC to consider generates an 'Elbow plot': a ranking of principle components based on the percentage of variance explained by each one (ElbowPlot function). In this example, we can observe an 'elbow' around PC9-10, suggesting that the majority of true signal is captured in the first 10 PCs.
 
-```{r pca_elbow, warniheatmapng=F, message=F}
+```{r }
+#| label: ElbowPlot
+#| warning: false
 ElbowPlot(XUR,ndims = 50)
 ```
 
@@ -302,7 +318,9 @@ To cluster the cells, we next apply modularity optimization techniques such as t
 
 The clusters can be found using the Idents function.
 
-```{r clustering, warning=F, message=F}
+```{r }
+#| label: clustering
+#| warning: false
 XUR <- FindNeighbors(XUR, reduction = "pca", dims = 1:50)
 XUR <- FindClusters(XUR, resolution = 0.5)
 
@@ -321,7 +339,9 @@ Pros - t-SNE powerfully captures the non-linearity in high dimensional datasets 
 
 Cons - The way t-SNE works, it is impossible for it to preserve the global structure while performing dimension reduction. Only local structures are preserved, while the distances between groups are drastically different depending on the run. - t-SNE embeds data points onto 2 or maximum 3 dimensions only. - For huge datasets, the algorithm takes a long time to run.
 
-```{r tsne, warning=F, message=F}
+```{r }
+#| label: tsne
+#| warning: false
 XUR <- RunTSNE(XUR, dims = 1:50)
 DimPlot(XUR, reduction = "tsne",label=T)
 ```
@@ -338,7 +358,9 @@ Pros - Non linear datasets: UMAP is manifold learning dimension reduction techni
 
 Cons - Lacks interpretability: Unlike PCA, where the principal components are directions of greatest variance of the source data, the lower dimension embeddings of UMAP lack strong interpretability. - One of the core assumptions of UMAP is that there exists manifold structure in the data. Because of this, UMAP can tend to find manifold structure within the noise of a dataset.
 
-```{r umap, warning=F, message=F}
+```{r }
+#| label: umap
+#| warning: false
 XUR <- RunUMAP(XUR, dims = 1:50)
 DimPlot(XUR, reduction = "umap",label=T )
 ```
@@ -353,7 +375,9 @@ The default test used is the Wilcoxon Rank Sum test
 
 #### Find all markers of cluster 0
 
-```{r markers_0, warning=F, message=F}
+```{r }
+#| label: markers_0
+#| warning: false
 c0_markers <- FindMarkers(XUR, 
                           ident.1 = 0, 
                           min.pct = 0.25) #only test genes that are detected in a minimum fraction of min.pct cells in either of the two populations
@@ -402,8 +426,9 @@ The following differential expression tests are currently supported:
 
 #### Find all markers distinguishing cluster 0 from clusters 1, 2 and 3
 
-```{r markers_3, warning=F, message=F}
-
+```{r}
+#| label: markers_3
+#| warning: false
 c0_1_3_markers <- FindMarkers(XUR, 
                           ident.1 = 0, 
                           ident.2 = c(1,3), 
@@ -413,8 +438,9 @@ head(c3_markers, n = 5)
 
 #### Find markers for every cluster compared to all remaining cells, report only the positive ones
 
-```{r all_markers, warning=F, message=F}
-
+```{r }
+#| label: all_markers
+#| warning: false
 XUR_markers <- FindAllMarkers(XUR, 
                                only.pos = TRUE, 
                                min.pct = 0.25, 
@@ -431,19 +457,25 @@ Seurat offers several tools for visualizing marker expression.
 
 #### VlnPlot shows expression probability distributions across clusters
 
-```{r vlnplot, warning=F, message=F}
+```{r }
+#| label: vlnplot
+#| warning: false
 VlnPlot(XUR, features = c("1500015O10Rik", "Spns3"),pt.size=0)
 ```
 
 #RidgePlot also shows expression probability distributions
 
-```{r ridgeplot, warning=F, message=F}
+```{r }
+#| label: ridgeplot
+#| warning: false
 RidgePlot(XUR, features = c("1500015O10Rik"))
 ```
 
 # FeaturePlot visualizes feature expression on a tSNE, UMAP or PCA plot
 
-```{r featureplot, warning=F, message=F}
+```{r }
+#| label: featureplot
+#| warning: false
 FeaturePlot(XUR, features = c("1500015O10Rik", "Spns3"), order =T )
 ```
 
@@ -452,12 +484,18 @@ FeaturePlot(XUR, features = c("1500015O10Rik", "Spns3"), order =T )
 Intuitive way of visualizing how feature expression changes across different identity classes (clusters). The size of the dot encodes the percentage of cells within a class, while the color encodes the AverageExpression level of cells within a class (blue is high).
 
 ```{r dotplot, warning=F, message=F}
+#| label: dotplot
+#| warning: false
+#| tidy: true
 DotPlot(XUR, features = c("1500015O10Rik", "Chac1", "Spns3","Foxj1"))
 ```
 
 #### DoHeatmap generates an expression heatmap for given cells and features. In this case, we are plotting the top 3 markers (or all markers if less than 3) for each cluster.
 
-```{r geatmap, warning=F, message=F}
+```{r }
+#| label: geatmap
+#| warning: false
+#| tidy: true
 top3 <- XUR_markers %>% group_by(cluster) %>% top_n(n = 3, wt = avg_log2FC)
 DoHeatmap(XUR, features = top3$gene) + NoLegend()
 rm(top3)
@@ -468,9 +506,12 @@ rm(top3)
 Seurat utilizes R’s plotly graphing library to create interactive plots.
 
 ```{r}
-plot <- FeaturePlot(XUR, features = "1500015O10Rik")
-HoverLocator(plot = plot, information = FetchData(XUR, vars = c("ident", "nFeature_RNA")))
-rm(plot)
+#| label: Interactive plotting features
+#| warning: false
+#| tidy: true
+#plot <- FeaturePlot(XUR, features = "1500015O10Rik")
+#HoverLocator(plot = plot, information = FetchData(XUR, vars = c("ident", "nFeature_RNA")))
+#rm(plot)
 ```
 
 # Marker-based automatic annotation
@@ -487,11 +528,14 @@ scType cell_type annotation: 1. For each positive/negative marker compute specif
 
 #Automatically detect a tissue type of the dataset (did it manualy)
 
-```{r Find best score for tissue, warning=FALSE}
+```{r }
+#| label: Find_tissue
+#| warning: false
+#| tidy: true
 # DB file
 db_ <- "https://raw.githubusercontent.com/IanevskiAleksandr/sc-type/master/ScTypeDB_full.xlsx"
 #db_ <- "ScTypeDB_full.xlsx"
-#tissue <- c("Brain","Immune system","Pancreas","Liver","Eye","Kidney","Brain","Lung","Adrenal","Heart","Intestine","Muscle","Placenta","Spleen","Stomach","Thymus")
+tissue <- c("Brain","Immune system","Pancreas","Liver","Eye","Kidney","Brain","Lung","Adrenal","Heart","Intestine","Muscle","Placenta","Spleen","Stomach","Thymus")
 tissue
 
 # Load gene set preparation function
@@ -511,7 +555,7 @@ for (t in tissue) {
   gs_list <- gene_sets_prepare(db_, t)
   
   # Calculate ScType scores for the current tissue
-  es.max <- sctype_score(scRNAseqData = XUR[["RNA"]]$scale.data, scaled = TRUE, gs = gs_list$gs_positive, gs2 = gs_list$gs_negative)
+  es.max <- sctype_score(scRNAseqData = XUR[["RNA"]]$scale.data, scaled = TRUE, gs = gs_list$gs_positive, gs2 = NULL) #gs_list$gs_negative
   
   # Merge by cluster
   cL_resutls <- do.call("rbind", lapply(unique(XUR@meta.data$seurat_clusters), function(cl){
@@ -549,7 +593,10 @@ ggplot(score_sum_df, aes(x = reorder(tissue, score_sum), y = score_sum, fill = t
 
 # Assign cell types to each cluster with Wrapper function
 
-```{r wrapper_function, warning=F}
+```{r }
+#| label: wrapper_function
+#| warning: false
+#| tidy: true
 # get cell-type by cell matrix
 source("https://raw.githubusercontent.com/kris-nader/sc-type/master/R/sctype_wrapper.R")
 XUR <- run_sctype(XUR,known_tissue_type="Brain",custom_marker_file =db_ ,name="scType_labels",plot=TRUE)
