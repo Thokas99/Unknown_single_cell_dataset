@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.554">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Thomas Sirchi">
+
+<title>Single_cell_analysis_of_unknown_cells</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="Single_cell_analysis_of_unknown_cells_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Single_cell_analysis_of_unknown_cells_files/libs/quarto-html/quarto.js"></script>
+<script src="Single_cell_analysis_of_unknown_cells_files/libs/quarto-html/popper.min.js"></script>
+<script src="Single_cell_analysis_of_unknown_cells_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Single_cell_analysis_of_unknown_cells_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Single_cell_analysis_of_unknown_cells_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Single_cell_analysis_of_unknown_cells_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Single_cell_analysis_of_unknown_cells_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Single_cell_analysis_of_unknown_cells_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Single_cell_analysis_of_unknown_cells_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Single_cell_analysis_of_unknown_cells</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Thomas Sirchi </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="load-the-necessary-packages-to-perform-the-analysis" class="level4">
+<h4 class="anchored" data-anchor-id="load-the-necessary-packages-to-perform-the-analysis">Load the necessary packages to perform the analysis</h4>
+</section>
+<section id="analysis-of-unknown-cells" class="level2">
+<h2 class="anchored" data-anchor-id="analysis-of-unknown-cells">Analysis of Unknown cells</h2>
+<section id="reading-in-the-data." class="level3">
+<h3 class="anchored" data-anchor-id="reading-in-the-data.">Reading in the data.</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>XUR <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"./data/XUR.rds"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="initialize-the-seurat-object-with-the-digital-count-matrix" class="level3">
+<h3 class="anchored" data-anchor-id="initialize-the-seurat-object-with-the-digital-count-matrix">Initialize the Seurat object with the digital count matrix</h3>
+<p>Use the count matrix to create a Seurat object. The object serves as a container that contains both data (like the count matrix) and analysis (like PCA, or clustering results) for a single-cell dataset. Seurat v5 assays store data in layers. These layers can store raw, un-normalized counts (layer=‘counts’), normalized data (layer=‘data’), or z-scored/variance-stabilized data (layer=‘scale.data’).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>XUR <span class="ot">&lt;-</span> <span class="fu">CreateSeuratObject</span>(<span class="at">counts =</span> XUR, </span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>                           <span class="at">project =</span> <span class="st">"XUR"</span>, <span class="co"># name of the project</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">min.cells =</span> <span class="dv">3</span>,   <span class="co"># filter for genes (rows)</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>                           <span class="at">min.features =</span> <span class="dv">50</span> <span class="co"># filter for cells (columns)</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>                           )</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>XUR</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>An object of class Seurat 
+17520 features across 2663 samples within 1 assay 
+Active assay: RNA (17520 features, 0 variable features)
+ 1 layer present: counts</code></pre>
+</div>
+</div>
+<p>Access the count matrix and check the data</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#XUR[["RNA"]]$counts[500:505, 1:30]</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">LayerData</span>(XUR, <span class="at">assay =</span> <span class="st">"RNA"</span>, <span class="at">layer =</span> <span class="st">"counts"</span>)[<span class="dv">500</span><span class="sc">:</span><span class="dv">505</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">30</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>6 x 30 sparse Matrix of class "dgCMatrix"
+                                                                              
+2410042D21Rik  .  . 39  . 23 . 58 . . .  36 .   . 127 . 10 . . . . . 2 .   . .
+2410057H14Rik  .  .  .  .  . .  . . . .   . .   .   . .  . . . . . . . .   . .
+2410066E13Rik  .  .  .  .  . .  . . . .   . . 100   . .  . . . . . . . .   . .
+2410075B13Rik  .  .  .  .  . .  . . . .   . .   .   . .  . . . . . . . .   . .
+2410076I21Rik 49 91 45 20  . .  . . . . 735 .   .   . .  . . . . . . . . 148 .
+2410089E03Rik  .  .  .  3  . . 72 . . .   . .   .   . .  . 7 . . . . . .   . .
+                          
+2410042D21Rik . 50 .   . .
+2410057H14Rik .  . .   . .
+2410066E13Rik .  . .   . .
+2410075B13Rik .  . .   . .
+2410076I21Rik .  . . 101 .
+2410089E03Rik .  . .   . .</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="standard-workflow" class="level2">
+<h2 class="anchored" data-anchor-id="standard-workflow">Standard workflow</h2>
+<section id="qc-and-selecting-cells-for-further-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="qc-and-selecting-cells-for-further-analysis">QC and selecting cells for further analysis</h3>
+<p>A few QC metrics commonly used by the community include:</p>
+<p>1- The number of unique genes detected in each cell (low-quality cells or empty droplets will often have very few genes, while cell doublets or multiplets may exhibit an aberrantly high gene count)</p>
+<p>2- The total number of molecules detected within a cell (correlates strongly with unique genes)</p>
+<p>3- The percentage of reads that map to the mitochondrial genome (low-quality or dying cells often exhibit extensive mitochondrial contamination)</p>
+<p>The PercentageFeatureSet function calculates the percentage of counts originating from a set of features (for example, you can use the set of all genes starting with MT- as a set of mitochondrial genes).</p>
+<p>The number of unique genes (nFeature_RNA) and total molecules (nCount_RNA) are automatically calculated during CreateSeuratObject. You can find them stored in the object meta data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>XUR[[<span class="st">"percent_mt"</span>]] <span class="ot">&lt;-</span> <span class="fu">PercentageFeatureSet</span>(XUR, <span class="at">pattern =</span> <span class="st">"^MT-"</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>XUR[[<span class="st">"percent_ERCC"</span>]] <span class="ot">&lt;-</span> <span class="fu">PercentageFeatureSet</span>(XUR, <span class="at">pattern =</span> <span class="st">"^ERCC-"</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Show QC metrics for the first 5 cells</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(XUR<span class="sc">@</span>meta.data, <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                       orig.ident nCount_RNA nFeature_RNA percent_mt
+A11.B002432.3_38_F.1.1        XUR     654316         2729          0
+B13.B002432.3_38_F.1.1        XUR    1466087         5648          0
+I21.B002432.3_38_F.1.1        XUR     596137         2818          0
+K1.B002432.3_38_F.1.1         XUR     543277         3568          0
+L6.B002432.3_38_F.1.1         XUR    1108930         4609          0
+                       percent_ERCC
+A11.B002432.3_38_F.1.1    1.9206316
+B13.B002432.3_38_F.1.1    0.4397420
+I21.B002432.3_38_F.1.1    1.7210809
+K1.B002432.3_38_F.1.1     1.3332057
+L6.B002432.3_38_F.1.1     0.7856222</code></pre>
+</div>
+</div>
+<section id="visualize-qc-metrics-as-a-violin-plot" class="level4">
+<h4 class="anchored" data-anchor-id="visualize-qc-metrics-as-a-violin-plot">Visualize QC metrics as a violin plot</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">VlnPlot</span>(XUR, <span class="at">features =</span> <span class="fu">c</span>(<span class="st">"nFeature_RNA"</span>, <span class="st">"nCount_RNA"</span>, <span class="st">"percent_ERCC"</span>), <span class="at">ncol =</span> <span class="dv">3</span>,</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">pt.size =</span> <span class="fl">0.01</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>p1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Single_cell_analysis_of_unknown_cells_files/figure-html/qc_violin-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(p1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="featurescatter-is-typically-used-to-visualize-feature-feature-relationships-but-can-be-used-for-anything-calculated-by-the-object-i.e.-columns-in-object-metadata-pc-scores-etc." class="level4">
+<h4 class="anchored" data-anchor-id="featurescatter-is-typically-used-to-visualize-feature-feature-relationships-but-can-be-used-for-anything-calculated-by-the-object-i.e.-columns-in-object-metadata-pc-scores-etc.">FeatureScatter is typically used to visualize feature-feature relationships, but can be used for anything calculated by the object, i.e.&nbsp;columns in object metadata, PC scores etc.</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>plot1 <span class="ot">&lt;-</span> <span class="fu">FeatureScatter</span>(XUR, <span class="at">feature1 =</span> <span class="st">"nCount_RNA"</span>, <span class="at">feature2 =</span> <span class="st">"percent_ERCC"</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>plot2 <span class="ot">&lt;-</span> <span class="fu">FeatureScatter</span>(XUR, <span class="at">feature1 =</span> <span class="st">"nCount_RNA"</span>, <span class="at">feature2 =</span> <span class="st">"nFeature_RNA"</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>plot1 <span class="sc">+</span> plot2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Single_cell_analysis_of_unknown_cells_files/figure-html/qc_scatter-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(plot1,plot2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="filter-cells-based-on-qc-values-nfeature-and-percent_ercc" class="level4">
+<h4 class="anchored" data-anchor-id="filter-cells-based-on-qc-values-nfeature-and-percent_ercc">Filter cells based on QC values (nFeature and percent_ERCC)</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>XUR <span class="ot">&lt;-</span> <span class="fu">subset</span>(XUR, <span class="at">subset =</span> nFeature_RNA <span class="sc">&gt;</span> <span class="dv">1500</span> <span class="sc">&amp;</span> </span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>                  nFeature_RNA <span class="sc">&lt;</span> <span class="dv">6000</span> <span class="sc">&amp;</span> </span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>                  percent_ERCC <span class="sc">&lt;</span> <span class="dv">80</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>XUR</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>An object of class Seurat 
+17520 features across 2349 samples within 1 assay 
+Active assay: RNA (17520 features, 0 variable features)
+ 1 layer present: counts</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="normalize-data" class="level3">
+<h3 class="anchored" data-anchor-id="normalize-data">Normalize data</h3>
+<p>After removing unwanted cells from the dataset, the next step is to normalize the data.</p>
+<p>By default, Seurat employs a global-scaling normalization method “LogNormalize” that normalizes the feature expression measurements for each cell by the total expression, multiplies this by a scale factor (10,000 by default)(to reduce technical variation from sequencing depth), and log-transforms the result (to reduce skewness). Normalized values are stored in the data layer (XUR[[“RNA”]]$data).</p>
+<p>Questionable assumption: each cell should have the same number of reads.</p>
+<p>Alternative normalization methods are also available (e.g.&nbsp;sctransform) ps. I prefer direct code like this</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>XUR <span class="ot">&lt;-</span> <span class="fu">NormalizeData</span>(XUR, </span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">normalization.method =</span> <span class="st">"LogNormalize"</span>,</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">verbose =</span> T,</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">scale.factor =</span> <span class="dv">10000</span>)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>XUR[[<span class="st">"RNA"</span>]]<span class="sc">$</span>data[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>,<span class="dv">1</span><span class="sc">:</span><span class="dv">30</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>10 x 30 sparse Matrix of class "dgCMatrix"
+                                                                           
+0610005C13Rik . .         .        .         .         .         .         
+0610007C21Rik . 1.2881406 1.183131 .         1.0179334 1.0095667 0.62714370
+0610007L01Rik . 0.3903254 1.203476 .         .         .         .         
+0610007N19Rik . .         .        .         0.1734252 0.4330499 0.07947072
+0610007P08Rik . 0.4572822 .        0.4972774 .         .         .         
+0610007P14Rik . 0.9644593 .        .         0.6522239 .         0.37236771
+0610007P22Rik . 0.3669717 .        .         .         .         .         
+0610008F07Rik . .         .        .         .         .         .         
+0610009B14Rik . .         .        .         .         .         .         
+0610009B22Rik . .         .        .         0.2251381 .         .         
+                                                                              
+0610005C13Rik .         .          .           .          .          .        
+0610007C21Rik .         1.29703851 0.542473051 0.91926780 0.72382387 0.5884101
+0610007L01Rik 1.0769597 0.04049202 0.008151413 0.09963276 1.03524603 0.1218577
+0610007N19Rik 0.5779750 .          .           .          .          0.3861114
+0610007P08Rik .         .          .           .          0.01227671 .        
+0610007P14Rik 0.1892211 .          0.498708519 .          .          0.5066658
+0610007P22Rik .         .          .           1.06381821 .          .        
+0610008F07Rik .         .          .           .          .          .        
+0610009B14Rik .         .          .           .          .          .        
+0610009B22Rik .         1.24288736 .           .          0.58939886 .        
+                                                                               
+0610005C13Rik 0.007642755 .         .          .          .         . .        
+0610007C21Rik 2.111151654 0.8459992 .          0.02353789 1.1916622 . .        
+0610007L01Rik 0.007642755 0.8161572 0.01626343 .          .         . .        
+0610007N19Rik .           0.1284171 .          0.01183820 .         . .        
+0610007P08Rik .           .         .          .          0.4644637 . .        
+0610007P14Rik .           .         .          .          0.7120355 . 0.5620480
+0610007P22Rik .           .         .          .          0.4461741 . .        
+0610008F07Rik .           .         .          .          .         . .        
+0610009B14Rik .           .         .          .          .         . .        
+0610009B22Rik .           .         .          .          0.3694752 . 0.6959842
+                                                                          
+0610005C13Rik .           .        .        .          .         .        
+0610007C21Rik 0.004508167 .        .        .          .         1.5455614
+0610007L01Rik 0.569916022 1.635788 1.012295 0.01548716 0.7153374 .        
+0610007N19Rik 0.246967383 .        .        .          .         .        
+0610007P08Rik .           .        .        .          .         .        
+0610007P14Rik 0.643783022 .        .        .          .         .        
+0610007P22Rik .           .        .        .          .         .        
+0610008F07Rik .           .        .        .          .         .        
+0610009B14Rik .           .        .        .          .         .        
+0610009B22Rik .           .        .        .          .         0.8527616
+                                                      
+0610005C13Rik .          .         .         .        
+0610007C21Rik 1.20986040 .         1.1146751 .        
+0610007L01Rik 0.03215813 .         0.7071701 1.3597257
+0610007N19Rik 0.11122901 .         0.2868330 .        
+0610007P08Rik .          .         .         .        
+0610007P14Rik .          .         .         .        
+0610007P22Rik .          0.8462684 .         0.9781853
+0610008F07Rik .          .         .         .        
+0610009B14Rik .          .         .         .        
+0610009B22Rik .          .         .         .        </code></pre>
+</div>
+</div>
+</section>
+<section id="identification-of-highly-variable-features-feature-selection" class="level3">
+<h3 class="anchored" data-anchor-id="identification-of-highly-variable-features-feature-selection">Identification of highly variable features (feature selection)</h3>
+<p>We next select a subset of features (genes) that exhibit high cell-to-cell variation in the dataset (i.e, they are highly expressed in some cells, and lowly expressed in others). Focusing on these genes in downstream analysis helps to highlight biological signal in single-cell datasets.</p>
+<p>The procedure to select variable features is implemented in the FindVariableFeatures function (the procedure models the mean-variance relationship inherent in single-cell data). By default, the function returns the 2,000 most variable features per dataset. These will be used in downstream analysis, like PCA.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>XUR <span class="ot">&lt;-</span> <span class="fu">FindVariableFeatures</span>(XUR, </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>                             <span class="at">selection.method =</span> <span class="st">"vst"</span>, <span class="co">#mean.var.plot</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>                             <span class="at">nfeatures =</span> <span class="dv">2000</span>)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Identify the 10 most highly variable genes</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>top10 <span class="ot">&lt;-</span> <span class="fu">head</span>(<span class="fu">VariableFeatures</span>(XUR), <span class="dv">10</span>)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="co"># plot variable features with labels</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>plot1 <span class="ot">&lt;-</span> <span class="fu">VariableFeaturePlot</span>(XUR)</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>plot2 <span class="ot">&lt;-</span> <span class="fu">LabelPoints</span>(<span class="at">plot =</span> plot1, <span class="at">points =</span> top10, <span class="at">repel =</span> <span class="cn">TRUE</span>, <span class="at">xnudge =</span> <span class="dv">0</span>, <span class="at">ynudge =</span> <span class="dv">0</span>)</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>plot2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Single_cell_analysis_of_unknown_cells_files/figure-html/variable_features-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(plot1,plot2,top10)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="scaling-the-data" class="level3">
+<h3 class="anchored" data-anchor-id="scaling-the-data">Scaling the data</h3>
+<p>By scaling, Seurat applies a linear transformation to the expression levels of each gene, that is a standard pre-processing step prior to dimensional reduction techniques like PCA.</p>
+<p>The ScaleData function:</p>
+<ul>
+<li>Shifts the expression of each gene, so that the mean expression across cells is 0</li>
+<li>Scales the expression of each gene, so that the variance across cells is 1 (z-score transformation)</li>
+</ul>
+<p>This step gives equal weight in downstream analyses, so that highly-expressed genes do not dominate</p>
+<p>The results of this are stored in XUR[[“RNA”]]$scale.data</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>all_genes <span class="ot">&lt;-</span> <span class="fu">rownames</span>(XUR) <span class="co"># perform scaling on all genes (by default, only the top 2000 are scaled)</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>XUR <span class="ot">&lt;-</span> <span class="fu">ScaleData</span>(XUR, </span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">features =</span> all_genes)</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>XUR[[<span class="st">"RNA"</span>]]<span class="sc">$</span>scale.data[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>,<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>              A11.B002432.3_38_F.1.1 B13.B002432.3_38_F.1.1
+0610005C13Rik            -0.03895175            -0.03895175
+0610007C21Rik            -1.00473022             1.11530144
+0610007L01Rik            -0.69273684             0.14518875
+0610007N19Rik            -0.38006909            -0.38006909
+0610007P08Rik            -0.24259307             2.22421001
+              I21.B002432.3_38_F.1.1 K1.B002432.3_38_F.1.1
+0610005C13Rik            -0.03895175           -0.03895175
+0610007C21Rik             0.94247615           -1.00473022
+0610007L01Rik             1.89080931           -0.69273684
+0610007N19Rik            -0.38006909           -0.38006909
+0610007P08Rik            -0.24259307            2.43996377
+              L6.B002432.3_38_F.1.1 M10.B002432.3_38_F.1.1
+0610005C13Rik           -0.03895175            -0.03895175
+0610007C21Rik            0.67059238             0.65682239
+0610007L01Rik           -0.69273684            -0.69273684
+0610007N19Rik            0.38996016             1.54272546
+0610007P08Rik           -0.24259307            -0.24259307
+              N16.B002432.3_38_F.1.1 O18.B002432.3_38_F.1.1
+0610005C13Rik            -0.03895175            -0.03895175
+0610007C21Rik             0.02742772            -1.00473022
+0610007L01Rik            -0.69273684             1.61921157
+0610007N19Rik            -0.02720934             2.18621074
+0610007P08Rik            -0.24259307            -0.24259307
+              C18.B002432.3_38_F.1.1 E4.B002432.3_38_F.1.1
+0610005C13Rik            -0.03895175           -0.03895175
+0610007C21Rik             1.12994575           -0.11192389
+0610007L01Rik            -0.60581116           -0.67523790
+0610007N19Rik            -0.38006909           -0.38006909
+0610007P08Rik            -0.24259307           -0.24259307</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="cell-cycle-analysis" class="level1">
+<h1>Cell cycle analysis</h1>
+<p>A list of cell cycle markers for the S and G2/M phases,derived from Tirosh et al, 2015, is loaded with Seurat. We can segregate this list into markers of G2/M phase and markers of S phase</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>s_genes <span class="ot">&lt;-</span> cc.genes<span class="sc">$</span>s.genes</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>s_genes <span class="ot">&lt;-</span> <span class="fu">str_to_title</span>(<span class="fu">tolower</span>(s_genes))</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>g2m_genes <span class="ot">&lt;-</span> cc.genes<span class="sc">$</span>g2m.genes</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>g2m_genes <span class="ot">&lt;-</span> <span class="fu">str_to_title</span>(<span class="fu">tolower</span>(g2m_genes))</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>s_genes</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "Mcm5"     "Pcna"     "Tyms"     "Fen1"     "Mcm2"     "Mcm4"    
+ [7] "Rrm1"     "Ung"      "Gins2"    "Mcm6"     "Cdca7"    "Dtl"     
+[13] "Prim1"    "Uhrf1"    "Mlf1ip"   "Hells"    "Rfc2"     "Rpa2"    
+[19] "Nasp"     "Rad51ap1" "Gmnn"     "Wdr76"    "Slbp"     "Ccne2"   
+[25] "Ubr7"     "Pold3"    "Msh2"     "Atad2"    "Rad51"    "Rrm2"    
+[31] "Cdc45"    "Cdc6"     "Exo1"     "Tipin"    "Dscc1"    "Blm"     
+[37] "Casp8ap2" "Usp1"     "Clspn"    "Pola1"    "Chaf1b"   "Brip1"   
+[43] "E2f8"    </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>g2m_genes</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "Hmgb2"   "Cdk1"    "Nusap1"  "Ube2c"   "Birc5"   "Tpx2"    "Top2a"  
+ [8] "Ndc80"   "Cks2"    "Nuf2"    "Cks1b"   "Mki67"   "Tmpo"    "Cenpf"  
+[15] "Tacc3"   "Fam64a"  "Smc4"    "Ccnb2"   "Ckap2l"  "Ckap2"   "Aurkb"  
+[22] "Bub1"    "Kif11"   "Anp32e"  "Tubb4b"  "Gtse1"   "Kif20b"  "Hjurp"  
+[29] "Cdca3"   "Hn1"     "Cdc20"   "Ttk"     "Cdc25c"  "Kif2c"   "Rangap1"
+[36] "Ncapd2"  "Dlgap5"  "Cdca2"   "Cdca8"   "Ect2"    "Kif23"   "Hmmr"   
+[43] "Aurka"   "Psrc1"   "Anln"    "Lbr"     "Ckap5"   "Cenpe"   "Ctcf"   
+[50] "Nek2"    "G2e3"    "Gas2l3"  "Cbx5"    "Cenpa"  </code></pre>
+</div>
+</div>
+</section>
+<section id="assign-cell-cycle-scores" class="level1">
+<h1>Assign Cell-Cycle Scores</h1>
+<p>First, each cell is assigned a score, based on its expression of G2/M and S phase markers. These marker sets should be anticorrelated in their expression levels, and cells expressing neither are likely not cycling and in G1 phase.</p>
+<p>Scores are assigned in the CellCycleScoring function, which stores S and G2/M scores in object meta data, along with the predicted classification of each cell in either G2M, S or G1 phase. CellCycleScoring can also set the identity of the Seurat object to the cell-cycle phase by passing set.ident = TRUE (the original identities are stored as old.ident). Please note that Seurat does not use the discrete classifications (G2M/G1/S) in downstream cell cycle regression. Instead, it uses the quantitative scores for G2M and S phase. However, the predicted classifications are provided in case they are of interest.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>c_cycle <span class="ot">&lt;-</span> <span class="fu">CellCycleScoring</span>(XUR, <span class="at">s.features =</span> s_genes, <span class="at">g2m.features =</span> g2m_genes, <span class="at">set.ident =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>s_genes <span class="sc">%in%</span> <span class="fu">rownames</span>(c_cycle)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+[16] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+[31] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>g2m_genes <span class="sc">%in%</span> <span class="fu">rownames</span>(c_cycle)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+[16] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+[31] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+[46] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># view cell cycle scores and phase assignments</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(<span class="fu">head</span>(c_cycle))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "A11.B002432.3_38_F.1.1" "B13.B002432.3_38_F.1.1" "I21.B002432.3_38_F.1.1"
+ [4] "K1.B002432.3_38_F.1.1"  "L6.B002432.3_38_F.1.1"  "M10.B002432.3_38_F.1.1"
+ [7] "N16.B002432.3_38_F.1.1" "O18.B002432.3_38_F.1.1" "C18.B002432.3_38_F.1.1"
+[10] "E4.B002432.3_38_F.1.1" </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(c_cycle[[]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                       orig.ident nCount_RNA nFeature_RNA percent_mt
+A11.B002432.3_38_F.1.1        XUR     654316         2729          0
+B13.B002432.3_38_F.1.1        XUR    1466087         5648          0
+I21.B002432.3_38_F.1.1        XUR     596137         2818          0
+K1.B002432.3_38_F.1.1         XUR     543277         3568          0
+L6.B002432.3_38_F.1.1         XUR    1108930         4609          0
+M10.B002432.3_38_F.1.1        XUR     590457         2949          0
+                       percent_ERCC      S.Score    G2M.Score Phase old.ident
+A11.B002432.3_38_F.1.1    1.9206316  0.057266434  0.021033256     S       XUR
+B13.B002432.3_38_F.1.1    0.4397420  0.024602894  0.018952396     S       XUR
+I21.B002432.3_38_F.1.1    1.7210809  0.173669441  0.103288371     S       XUR
+K1.B002432.3_38_F.1.1     1.3332057 -0.030461354 -0.016180534    G1       XUR
+L6.B002432.3_38_F.1.1     0.7856222 -0.052592451 -0.009378326    G1       XUR
+M10.B002432.3_38_F.1.1    1.8185914 -0.005873801 -0.046823067    G1       XUR</code></pre>
+</div>
+</div>
+<section id="visualize-the-distribution-of-cell-cycle-markers" class="level3">
+<h3 class="anchored" data-anchor-id="visualize-the-distribution-of-cell-cycle-markers">Visualize the distribution of cell cycle markers</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">RidgePlot</span>(c_cycle, <span class="at">features =</span> <span class="fu">c</span>(<span class="st">"Hmgb2"</span>,<span class="st">"Pcna"</span>), <span class="at">ncol =</span> <span class="dv">2</span>) <span class="co"># very low expression </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Single_cell_analysis_of_unknown_cells_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Running a PCA on cell cycle genes confirms that cells separate entirely by phase</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>c_cycle <span class="ot">&lt;-</span> <span class="fu">RunPCA</span>(c_cycle, <span class="at">features =</span> <span class="fu">c</span>(s_genes, g2m_genes),<span class="at">verbose=</span>T)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(c_cycle, <span class="at">reduction=</span><span class="st">"pca"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Single_cell_analysis_of_unknown_cells_files/figure-html/cell_cycle_PCA-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="regress-out-cell-cycle-scores-during-data-scaling" class="level1">
+<h1>Regress out cell cycle scores during data scaling</h1>
+<p>We now attempt to subtract (‘regress out’) this source of heterogeneity from the data. For each gene, Seurat models the relationship between gene expression and the S and G2M cell cycle scores. The scaled residuals of this model represent a ‘corrected’ expression matrix, that can be used downstream for dimensional reduction.</p>
+<p>After this regression, a PCA on the variable genes no longer returns components associated with cell cycle (long time step)</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>c_cycle <span class="ot">&lt;-</span> <span class="fu">ScaleData</span>(c_cycle, <span class="at">vars.to.regress =</span> <span class="fu">c</span>(<span class="st">"S.Score"</span>, <span class="st">"G2M.Score"</span>), <span class="at">features =</span> <span class="fu">rownames</span>(c_cycle))</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>c_cycle <span class="ot">&lt;-</span> <span class="fu">RunPCA</span>(c_cycle, <span class="at">features =</span> <span class="fu">VariableFeatures</span>(c_cycle), <span class="at">nfeatures.print =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>c_cycle <span class="ot">&lt;-</span> <span class="fu">RunPCA</span>(c_cycle, <span class="at">features =</span> <span class="fu">c</span>(s_genes, g2m_genes))</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(c_cycle)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Single_cell_analysis_of_unknown_cells_files/figure-html/cell_cycle_PCA2-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>XUR <span class="ot">&lt;-</span> c_cycle</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(s_genes,g2m_genes,c_cycle)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="linear-dimensional-reduction-pca" class="level3">
+<h3 class="anchored" data-anchor-id="linear-dimensional-reduction-pca">Linear dimensional reduction (PCA)</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>XUR <span class="ot">&lt;-</span> <span class="fu">RunPCA</span>(XUR, </span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>               <span class="at">features =</span> <span class="fu">VariableFeatures</span>(<span class="at">object =</span> XUR),</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">verbose =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Seurat provides several ways of visualizing both cells and features that define the PCA, including VizDimReduction, DimPlot, and DimHeatmap. PCA results are stored in XUR[[“pca”]]</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">VizDimLoadings</span>(XUR, <span class="at">dims =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="at">reduction =</span> <span class="st">"pca"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Single_cell_analysis_of_unknown_cells_files/figure-html/VizDimLoadings_PCA-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(XUR, <span class="at">reduction =</span> <span class="st">"pca"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Single_cell_analysis_of_unknown_cells_files/figure-html/DimPlot_PCA-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>DimHeatmap allows for easy exploration of the primary sources of heterogeneity in a dataset, and can be useful when trying to decide which PCs to include for further downstream analyses. Both cells and features are ordered according to their PCA scores. Setting “cells” to a number plots the ‘extreme’ cells on both ends of the spectrum, which dramatically speeds plotting for large datasets.</p>
+<div class="cell" data-warniheatmapng="false">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DimHeatmap</span>(XUR, <span class="at">dims =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, </span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">cells =</span> <span class="dv">500</span>, </span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">balanced =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Single_cell_analysis_of_unknown_cells_files/figure-html/DimHeatmap-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="determine-the-dimensionality-of-the-dataset" class="level3">
+<h3 class="anchored" data-anchor-id="determine-the-dimensionality-of-the-dataset">Determine the ‘dimensionality’ of the dataset</h3>
+<p>A heuristic method to decide the number of PC to consider generates an ‘Elbow plot’: a ranking of principle components based on the percentage of variance explained by each one (ElbowPlot function). In this example, we can observe an ‘elbow’ around PC9-10, suggesting that the majority of true signal is captured in the first 10 PCs.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ElbowPlot</span>(XUR,<span class="at">ndims =</span> <span class="dv">50</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Single_cell_analysis_of_unknown_cells_files/figure-html/ElbowPlot-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="cluster-the-cells" class="level3">
+<h3 class="anchored" data-anchor-id="cluster-the-cells">Cluster the cells</h3>
+<p>Seurat applies a graph-based clustering approach. The distance metric which drives the clustering analysis is based on previously identified PCs. The approach to partioning the cellular distance matrix into clusters is the following: we embed cells in a graph structure - for example a K-nearest neighbor (KNN) graph, with edges drawn between cells with similar feature expression patterns, and then attempt to partition this graph into highly interconnected ‘quasi-cliques’ or ‘communities’. Seurat first constructs a KNN graph based on the euclidean distance in PCA space, and refine the edge weights between any two cells based on the shared overlap in their local neighborhoods (Jaccard similarity). This step is performed using the FindNeighbors function, and takes as input the previously defined dimensionality of the dataset (first 10 PCs).</p>
+<p>To cluster the cells, we next apply modularity optimization techniques such as the Louvain algorithm (default) to iteratively group cells together, with the goal of optimizing the standard modularity function. The FindClusters function implements this procedure, and contains a resolution parameter that sets the ‘granularity’ of the downstream clustering, with increased values leading to a greater number of clusters. We find that setting this parameter between 0.4-1.2 typically returns good results for single-cell datasets of around 3K cells. Optimal resolution often increases for larger datasets.</p>
+<p>The clusters can be found using the Idents function.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>XUR <span class="ot">&lt;-</span> <span class="fu">FindNeighbors</span>(XUR, <span class="at">reduction =</span> <span class="st">"pca"</span>, <span class="at">dims =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">50</span>)</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>XUR <span class="ot">&lt;-</span> <span class="fu">FindClusters</span>(XUR, <span class="at">resolution =</span> <span class="fl">0.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Modularity Optimizer version 1.3.0 by Ludo Waltman and Nees Jan van Eck
+
+Number of nodes: 2349
+Number of edges: 103135
+
+Running Louvain algorithm...
+Maximum modularity in 10 random starts: 0.8744
+Number of communities: 9
+Elapsed time: 0 seconds</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">Idents</span>(XUR), <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>A11.B002432.3_38_F.1.1 B13.B002432.3_38_F.1.1 I21.B002432.3_38_F.1.1 
+                     2                      2                      0 
+ K1.B002432.3_38_F.1.1  L6.B002432.3_38_F.1.1 
+                     0                      0 
+Levels: 0 1 2 3 4 5 6 7 8</code></pre>
+</div>
+</div>
+</section>
+<section id="run-non-linear-dimensional-reduction-for-visualization-umaptsne" class="level3">
+<h3 class="anchored" data-anchor-id="run-non-linear-dimensional-reduction-for-visualization-umaptsne">Run non-linear dimensional reduction for visualization (UMAP/tSNE)</h3>
+<p>Seurat offers several non-linear dimensional reduction techniques, such as tSNE and UMAP, to visualize and explore these datasets. The goal of these algorithms is to learn the underlying manifold of the data in order to place similar cells together in low-dimensional space. Cells within the graph-based clusters determined above should co-localize on these dimension reduction plots. As input to the UMAP and tSNE, we suggest using the same PCs as input to the clustering analysis.</p>
+<section id="visualization-with-tsne-t-stochastic-neighbourhood-embedding" class="level4">
+<h4 class="anchored" data-anchor-id="visualization-with-tsne-t-stochastic-neighbourhood-embedding">Visualization with tSNE (t-Stochastic Neighbourhood Embedding)</h4>
+<p>t-SNE is a graph based, non-linear dimensionality reduction technique. It projects high dimensional data onto 2D or 3D components.</p>
+<p>Pros - t-SNE powerfully captures the non-linearity in high dimensional datasets and is able to retain the local structures in low dimensions. This is a huge improvement over PCA. t-SNE has been used as a gold standard method for scRNA-seq data visualisation.</p>
+<p>Cons - The way t-SNE works, it is impossible for it to preserve the global structure while performing dimension reduction. Only local structures are preserved, while the distances between groups are drastically different depending on the run. - t-SNE embeds data points onto 2 or maximum 3 dimensions only. - For huge datasets, the algorithm takes a long time to run.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>XUR <span class="ot">&lt;-</span> <span class="fu">RunTSNE</span>(XUR, <span class="at">dims =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">50</span>)</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(XUR, <span class="at">reduction =</span> <span class="st">"tsne"</span>,<span class="at">label=</span>T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Single_cell_analysis_of_unknown_cells_files/figure-html/tsne-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="visualization-with-umap-uniform-manifold-approximation-and-projection" class="level4">
+<h4 class="anchored" data-anchor-id="visualization-with-umap-uniform-manifold-approximation-and-projection">Visualization with UMAP (Uniform Manifold Approximation and Projection)</h4>
+<p>UMAP is a dimension reduction technique that can be used for visualisation similarly to t-SNE, but also for general non-linear dimension reduction.</p>
+<p>UMAP is a relatively new dimensional reduction technique introduced by McInnes et al in 2018. (McInnes, L, Healy, J, UMAP: Uniform Manifold Approximation and Projection for Dimension Reduction, ArXiv e-prints 1802.03426, 2018)</p>
+<p>The algorithm is graph based and principally similar to t-SNE where it constructs a high dimensional graph representation of the data, then optimizes a low-dimensional graph to be as structurally similar as possible.</p>
+<p>Pros - Non linear datasets: UMAP is manifold learning dimension reduction technique and thus captures the non linearity of real world datasets. It is comparable to t-SNE in terms of data visualisation. - The mathematical improvements in UMAP allow superior run time performance over t-SNE - In comparison to t-SNE, UMAP offers better preservation of a data’s global structure. - Unlike t-SNE, UMAP has no computational restrictions on embedding dimensions and can be used as an effective pre-processing step to boost the performance of density based clustering algorithms.</p>
+<p>Cons - Lacks interpretability: Unlike PCA, where the principal components are directions of greatest variance of the source data, the lower dimension embeddings of UMAP lack strong interpretability. - One of the core assumptions of UMAP is that there exists manifold structure in the data. Because of this, UMAP can tend to find manifold structure within the noise of a dataset.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>XUR <span class="ot">&lt;-</span> <span class="fu">RunUMAP</span>(XUR, <span class="at">dims =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">50</span>)</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(XUR, <span class="at">reduction =</span> <span class="st">"umap"</span>,<span class="at">label=</span>T )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Single_cell_analysis_of_unknown_cells_files/figure-html/umap-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="finding-differentially-expressed-features-cluster-biomarkers" class="level3">
+<h3 class="anchored" data-anchor-id="finding-differentially-expressed-features-cluster-biomarkers">Finding differentially expressed features (cluster biomarkers)</h3>
+<p>Seurat can find markers that define clusters via differential expression. By default, setting only ident.1, it identifes positive and negative markers of a single cluster (specified in ident.1), compared to all other cells. FindAllMarkers automates this process for all clusters, but you can also test groups of clusters vs.&nbsp;each other, or against all cells.</p>
+<p>The min.pct argument requires a feature to be detected at a minimum percentage in either of the two groups of cells, and the logfc.threshold argument requires a feature to be differentially expressed (on average) by some amount between the two groups.</p>
+<p>The default test used is the Wilcoxon Rank Sum test</p>
+<section id="find-all-markers-of-cluster-0" class="level4">
+<h4 class="anchored" data-anchor-id="find-all-markers-of-cluster-0">Find all markers of cluster 0</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>c0_markers <span class="ot">&lt;-</span> <span class="fu">FindMarkers</span>(XUR, </span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>                          <span class="at">ident.1 =</span> <span class="dv">0</span>, </span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>                          <span class="at">min.pct =</span> <span class="fl">0.25</span>) <span class="co">#only test genes that are detected in a minimum fraction of min.pct cells in either of the two populations</span></span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>c1_markers <span class="ot">&lt;-</span> <span class="fu">FindMarkers</span>(XUR, </span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>                          <span class="at">ident.1 =</span> <span class="dv">1</span>, </span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>                          <span class="at">min.pct =</span> <span class="fl">0.25</span>) <span class="co">#only test genes that are detected in a minimum fraction of min.pct cells in either of the two populations</span></span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>c3_markers <span class="ot">&lt;-</span> <span class="fu">FindMarkers</span>(XUR, </span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>                          <span class="at">ident.1 =</span> <span class="dv">3</span>, </span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>                          <span class="at">min.pct =</span> <span class="fl">0.25</span>) <span class="co">#only test genes that are detected in a minimum fraction of min.pct cells in either of the two populations</span></span>
+<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(c0_markers, <span class="at">n =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                      p_val avg_log2FC pct.1 pct.2     p_val_adj
+Cxcl14        3.232571e-118   1.570297 0.994 0.514 5.663465e-114
+1500015O10Rik 8.159781e-111   2.588958 0.765 0.271 1.429594e-106
+Cnn1          2.044357e-101   1.659640 0.940 0.444  3.581713e-97
+Krt5           4.630762e-98   1.180113 0.996 0.516  8.113095e-94
+Slpi           7.759739e-97   1.277903 0.897 0.402  1.359506e-92</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(c1_markers, <span class="at">n =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>               p_val avg_log2FC pct.1 pct.2     p_val_adj
+Chac1  4.943088e-169   3.635521 0.589 0.059 8.660291e-165
+Cda    2.269073e-143   2.270250 0.910 0.326 3.975416e-139
+Mthfd2 3.583896e-140   2.587137 0.801 0.215 6.278986e-136
+Pmepa1 3.094768e-136   1.810024 1.000 0.850 5.422034e-132
+Arl4c  4.347436e-136   2.047282 0.977 0.448 7.616708e-132</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(c3_markers, <span class="at">n =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>               p_val avg_log2FC pct.1 pct.2     p_val_adj
+Them5  1.217160e-159   5.197113 0.544 0.048 2.132464e-155
+Rbp1   5.803101e-105   1.728021 0.975 0.723 1.016703e-100
+Apoe   4.328717e-102   1.470001 1.000 0.909  7.583913e-98
+Lgals7 9.257990e-100   1.771201 0.977 0.632  1.622000e-95
+Emid1   3.879902e-98   1.866634 0.918 0.424  6.797589e-94</code></pre>
+</div>
+</div>
+<p>The results data frame has the following columns :</p>
+<p>p_val : p_val (unadjusted)</p>
+<p>avg_log2FC : log fold-change of the average expression between the two groups. Positive values indicate that the feature is more highly expressed in the first group.</p>
+<p>pct.1 : The percentage of cells where the feature is detected in the first group</p>
+<p>pct.2 : The percentage of cells where the feature is detected in the second group</p>
+<p>p_val_adj : Adjusted p-value, based on Bonferroni correction using all features in the dataset.</p>
+<p>The following differential expression tests are currently supported:</p>
+<p>“wilcox” : Wilcoxon rank sum test (default)</p>
+<p>“bimod” : Likelihood-ratio test for single cell feature expression, (McDavid et al., Bioinformatics, 2013)</p>
+<p>“roc” : Standard AUC classifier. For each gene, evaluates (using AUC) a classifier built on that gene alone, to classify between two groups of cells. An AUC value of 1 means that expression values for this gene alone can perfectly classify the two groupings (i.e.&nbsp;Each of the cells in cells.1 exhibit a higher level than each of the cells in cells.2). An AUC value of 0 also means there is perfect classification, but in the other direction. A value of 0.5 implies that the gene has no predictive power to classify the two groups. Returns a ‘predictive power’ (abs(AUC-0.5) * 2) ranked matrix of putative differentially expressed genes.</p>
+<p>“t” : Student’s t-test</p>
+<p>“poisson” : Likelihood ratio test assuming an underlying poisson distribution. Use only for UMI-based datasets</p>
+<p>“negbinom” : Likelihood ratio test assuming an underlying negative binomial distribution. Use only for UMI-based datasets</p>
+<p>“LR” : Uses a logistic regression framework to determine differentially expressed genes. Constructs a logistic regression model predicting group membership based on each feature individually and compares this to a null model with a likelihood ratio test.</p>
+<p>“MAST” : Utilizes the MAST package to run the DE testing. GLM-framework that treates cellular detection rate as a covariate (Finak et al, Genome Biology, 2015)</p>
+<p>“DESeq2” : Identifies differentially expressed genes between two groups of cells based on a model using DESeq2 which uses a negative binomial distribution (Love et al, Genome Biology, 2014)</p>
+</section>
+<section id="find-all-markers-distinguishing-cluster-0-from-clusters-1-2-and-3" class="level4">
+<h4 class="anchored" data-anchor-id="find-all-markers-distinguishing-cluster-0-from-clusters-1-2-and-3">Find all markers distinguishing cluster 0 from clusters 1, 2 and 3</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>c0_1_3_markers <span class="ot">&lt;-</span> <span class="fu">FindMarkers</span>(XUR, </span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>                          <span class="at">ident.1 =</span> <span class="dv">0</span>, </span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>                          <span class="at">ident.2 =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>), </span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>                          <span class="at">min.pct =</span> <span class="fl">0.25</span>)</span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(c3_markers, <span class="at">n =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>               p_val avg_log2FC pct.1 pct.2     p_val_adj
+Them5  1.217160e-159   5.197113 0.544 0.048 2.132464e-155
+Rbp1   5.803101e-105   1.728021 0.975 0.723 1.016703e-100
+Apoe   4.328717e-102   1.470001 1.000 0.909  7.583913e-98
+Lgals7 9.257990e-100   1.771201 0.977 0.632  1.622000e-95
+Emid1   3.879902e-98   1.866634 0.918 0.424  6.797589e-94</code></pre>
+</div>
+</div>
+</section>
+<section id="find-markers-for-every-cluster-compared-to-all-remaining-cells-report-only-the-positive-ones" class="level4">
+<h4 class="anchored" data-anchor-id="find-markers-for-every-cluster-compared-to-all-remaining-cells-report-only-the-positive-ones">Find markers for every cluster compared to all remaining cells, report only the positive ones</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>XUR_markers <span class="ot">&lt;-</span> <span class="fu">FindAllMarkers</span>(XUR, </span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>                               <span class="at">only.pos =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>                               <span class="at">min.pct =</span> <span class="fl">0.25</span>, </span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>                               <span class="at">logfc.threshold =</span> <span class="fl">0.25</span>)</span>
+<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-6"><a href="#cb56-6" aria-hidden="true" tabindex="-1"></a>XUR_markers <span class="sc">%&gt;%</span></span>
+<span id="cb56-7"><a href="#cb56-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(cluster) <span class="sc">%&gt;%</span></span>
+<span id="cb56-8"><a href="#cb56-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">slice_max</span>(<span class="at">n=</span><span class="dv">2</span>,<span class="at">order_by=</span>avg_log2FC) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 18 × 7
+# Groups:   cluster [9]
+       p_val avg_log2FC pct.1 pct.2 p_val_adj cluster gene         
+       &lt;dbl&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt; &lt;fct&gt;   &lt;chr&gt;        
+ 1 8.63e- 57       2.76 0.491 0.163 1.51e- 52 0       Oxtr         
+ 2 8.16e-111       2.59 0.765 0.271 1.43e-106 0       1500015O10Rik
+ 3 4.94e-169       3.64 0.589 0.059 8.66e-165 1       Chac1        
+ 4 7.33e- 68       3.22 0.307 0.041 1.28e- 63 1       Npy          
+ 5 9.67e-117       9.79 0.299 0.008 1.69e-112 2       Spns3        
+ 6 2.43e-283       9.06 0.617 0.004 4.25e-279 2       Muc20        
+ 7 1.22e-159       5.20 0.544 0.048 2.13e-155 3       Them5        
+ 8 1.42e- 96       4.59 0.31  0.019 2.50e- 92 3       Serpinb11    
+ 9 7.68e- 39       9.37 0.314 0.083 1.34e- 34 4       Mfap4        
+10 9.68e-166       7.29 0.689 0.104 1.70e-161 4       Enpp2        
+11 7.48e-302       8.03 0.936 0.041 1.31e-297 5       Smpd3        
+12 2.33e-164       7.98 0.376 0.003 4.08e-160 5       Ccbp2        
+13 1.55e-111      12.6  0.301 0.006 2.72e-107 6       Fgb          
+14 3.96e-165      12.4  0.438 0.009 6.94e-161 6       Calca        
+15 7.15e-181      12.8  0.784 0.016 1.25e-176 7       Sox17        
+16 1.04e- 94      12.6  0.73  0.035 1.82e- 90 7       Emcn         
+17 3.61e-104      11.4  0.45  0.005 6.33e-100 8       Wnt3         
+18 3.93e- 92      11.3  0.25  0.001 6.89e- 88 8       Serpina3b    </code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="visualization-tools" class="level3">
+<h3 class="anchored" data-anchor-id="visualization-tools">Visualization tools</h3>
+<p>Seurat offers several tools for visualizing marker expression.</p>
+<section id="vlnplot-shows-expression-probability-distributions-across-clusters" class="level4">
+<h4 class="anchored" data-anchor-id="vlnplot-shows-expression-probability-distributions-across-clusters">VlnPlot shows expression probability distributions across clusters</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">VlnPlot</span>(XUR, <span class="at">features =</span> <span class="fu">c</span>(<span class="st">"1500015O10Rik"</span>, <span class="st">"Spns3"</span>),<span class="at">pt.size=</span><span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Single_cell_analysis_of_unknown_cells_files/figure-html/vlnplot-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>#RidgePlot also shows expression probability distributions</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="fu">RidgePlot</span>(XUR, <span class="at">features =</span> <span class="fu">c</span>(<span class="st">"1500015O10Rik"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Single_cell_analysis_of_unknown_cells_files/figure-html/ridgeplot-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="featureplot-visualizes-feature-expression-on-a-tsne-umap-or-pca-plot" class="level1">
+<h1>FeaturePlot visualizes feature expression on a tSNE, UMAP or PCA plot</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">FeaturePlot</span>(XUR, <span class="at">features =</span> <span class="fu">c</span>(<span class="st">"1500015O10Rik"</span>, <span class="st">"Spns3"</span>), <span class="at">order =</span>T )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Single_cell_analysis_of_unknown_cells_files/figure-html/featureplot-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="dotplot" class="level1">
+<h1>DotPlot</h1>
+<p>Intuitive way of visualizing how feature expression changes across different identity classes (clusters). The size of the dot encodes the percentage of cells within a class, while the color encodes the AverageExpression level of cells within a class (blue is high).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DotPlot</span>(XUR, <span class="at">features =</span> <span class="fu">c</span>(<span class="st">"1500015O10Rik"</span>, <span class="st">"Chac1"</span>, <span class="st">"Spns3"</span>, <span class="st">"Foxj1"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Single_cell_analysis_of_unknown_cells_files/figure-html/dotplot-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<section id="doheatmap-generates-an-expression-heatmap-for-given-cells-and-features.-in-this-case-we-are-plotting-the-top-3-markers-or-all-markers-if-less-than-3-for-each-cluster." class="level4">
+<h4 class="anchored" data-anchor-id="doheatmap-generates-an-expression-heatmap-for-given-cells-and-features.-in-this-case-we-are-plotting-the-top-3-markers-or-all-markers-if-less-than-3-for-each-cluster.">DoHeatmap generates an expression heatmap for given cells and features. In this case, we are plotting the top 3 markers (or all markers if less than 3) for each cluster.</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>top3 <span class="ot">&lt;-</span> XUR_markers <span class="sc">%&gt;%</span></span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(cluster) <span class="sc">%&gt;%</span></span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">top_n</span>(<span class="at">n =</span> <span class="dv">3</span>, <span class="at">wt =</span> avg_log2FC)</span>
+<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a><span class="fu">DoHeatmap</span>(XUR, <span class="at">features =</span> top3<span class="sc">$</span>gene) <span class="sc">+</span> <span class="fu">NoLegend</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Single_cell_analysis_of_unknown_cells_files/figure-html/geatmap-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(top3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="interactive-plotting-features" class="level1">
+<h1>Interactive plotting features</h1>
+<p>Seurat utilizes R’s plotly graphing library to create interactive plots.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot &lt;- FeaturePlot(XUR, features = '1500015O10Rik') HoverLocator(plot =</span></span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a><span class="co"># plot, information = FetchData(XUR, vars = c('ident', 'nFeature_RNA')))</span></span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a><span class="co"># rm(plot)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="marker-based-automatic-annotation" class="level1">
+<h1>Marker-based automatic annotation</h1>
+<p>Marker-based automatic annotation labels cells or cell clusters based on the characteristic expression of known marker genes. Set of marker genes can be obtained from databases (PanglaoDB, CellMarker, CellTypist …) or manually from the literature.</p>
+<p>To be successful, the marker gene or gene set (a collection of marker genes) should be specifically and consistently expressed in a given cell, cluster or class of cells. Marker-based automatic annotation works well once a relevant and sufficiently large set of marker genes is collected</p>
+</section>
+<section id="sctype-ianevski-et-al.-2022" class="level1">
+<h1>scType (Ianevski et al.&nbsp;2022)</h1>
+<p>ScType accepts both positive and negative markers, i.e., gene that are not expected to be expressed in a particular cell type. Sctype provides its own marker database for human and mouse, obtained from the integration of the information available in the CellMarker database (<a href="http://biocc.hrbmu.edu.cn/CellMarker/" class="uri">http://biocc.hrbmu.edu.cn/CellMarker/</a>) and PanglaoDB (<a href="https://panglaodb.se" class="uri">https://panglaodb.se</a>). In total, the current version of the ScType database comprises 3,980 cell markers for 194 cell types in 17 human tissues and 4,212 cell markers for 194 cell types in 17 mouse tissues.</p>
+<p>scType cell_type annotation: 1. For each positive/negative marker compute specificity score, which indicate whether a gene is a marker for a specific cell types. 2. The raw expression matrix is normalized and Z-transform (scale the expression of each gene across cells) 3. The transformed matrix is multiply by the cell-type specificity score 4. For each cell types the expression scores of all its positive markers are summarized into a single enrichment score by summing them and dividing by square root of their number. The same is done for the negative markers. 5. The negative marker expression score is subtracted from the positive score to obtain the final enrichment score. Individual cells are assigned to a cell type based on the maximum value for the cell type marker set.</p>
+<p>#Automatically detect a tissue type of the dataset (did it manualy)</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="co"># DB file</span></span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>db_ <span class="ot">&lt;-</span> <span class="st">"https://raw.githubusercontent.com/IanevskiAleksandr/sc-type/master/ScTypeDB_full.xlsx"</span></span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a><span class="co"># db_ &lt;- 'ScTypeDB_full.xlsx'</span></span>
+<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a>tissue <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Brain"</span>, <span class="st">"Immune system"</span>, <span class="st">"Pancreas"</span>, <span class="st">"Liver"</span>, <span class="st">"Eye"</span>, <span class="st">"Kidney"</span>, <span class="st">"Brain"</span>,</span>
+<span id="cb65-5"><a href="#cb65-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Lung"</span>, <span class="st">"Adrenal"</span>, <span class="st">"Heart"</span>, <span class="st">"Intestine"</span>, <span class="st">"Muscle"</span>, <span class="st">"Placenta"</span>, <span class="st">"Spleen"</span>, <span class="st">"Stomach"</span>,</span>
+<span id="cb65-6"><a href="#cb65-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Thymus"</span>)</span>
+<span id="cb65-7"><a href="#cb65-7" aria-hidden="true" tabindex="-1"></a>tissue</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "Brain"         "Immune system" "Pancreas"      "Liver"        
+ [5] "Eye"           "Kidney"        "Brain"         "Lung"         
+ [9] "Adrenal"       "Heart"         "Intestine"     "Muscle"       
+[13] "Placenta"      "Spleen"        "Stomach"       "Thymus"       </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load gene set preparation function</span></span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"https://raw.githubusercontent.com/IanevskiAleksandr/sc-type/master/R/gene_sets_prepare.R"</span>)</span>
+<span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb67-4"><a href="#cb67-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Load cell type annotation function</span></span>
+<span id="cb67-5"><a href="#cb67-5" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"https://raw.githubusercontent.com/IanevskiAleksandr/sc-type/master/R/sctype_score_.R"</span>)</span>
+<span id="cb67-6"><a href="#cb67-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb67-7"><a href="#cb67-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize a list to store sctype_scores for each tissue</span></span>
+<span id="cb67-8"><a href="#cb67-8" aria-hidden="true" tabindex="-1"></a>sctype_scores_list <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb67-9"><a href="#cb67-9" aria-hidden="true" tabindex="-1"></a>score_sum_list <span class="ot">&lt;-</span> <span class="fu">list</span>()  <span class="co"># Initialize a list to store sum of scores for each tissue</span></span>
+<span id="cb67-10"><a href="#cb67-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb67-11"><a href="#cb67-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Loop over each tissue</span></span>
+<span id="cb67-12"><a href="#cb67-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (t <span class="cf">in</span> tissue) {</span>
+<span id="cb67-13"><a href="#cb67-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">"Now analyzing for tissue"</span>, t, <span class="st">"...</span><span class="sc">\n</span><span class="st">"</span>)  <span class="co"># Print current tissue being analyzed</span></span>
+<span id="cb67-14"><a href="#cb67-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Prepare gene sets for the current tissue</span></span>
+<span id="cb67-15"><a href="#cb67-15" aria-hidden="true" tabindex="-1"></a>    gs_list <span class="ot">&lt;-</span> <span class="fu">gene_sets_prepare</span>(db_, t)</span>
+<span id="cb67-16"><a href="#cb67-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb67-17"><a href="#cb67-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calculate ScType scores for the current tissue</span></span>
+<span id="cb67-18"><a href="#cb67-18" aria-hidden="true" tabindex="-1"></a>    es.max <span class="ot">&lt;-</span> <span class="fu">sctype_score</span>(<span class="at">scRNAseqData =</span> XUR[[<span class="st">"RNA"</span>]]<span class="sc">$</span>scale.data, <span class="at">scaled =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb67-19"><a href="#cb67-19" aria-hidden="true" tabindex="-1"></a>        <span class="at">gs =</span> gs_list<span class="sc">$</span>gs_positive, <span class="at">gs2 =</span> <span class="cn">NULL</span>)  <span class="co">#gs_list$gs_negative</span></span>
+<span id="cb67-20"><a href="#cb67-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb67-21"><a href="#cb67-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Merge by cluster</span></span>
+<span id="cb67-22"><a href="#cb67-22" aria-hidden="true" tabindex="-1"></a>    cL_resutls <span class="ot">&lt;-</span> <span class="fu">do.call</span>(<span class="st">"rbind"</span>, <span class="fu">lapply</span>(<span class="fu">unique</span>(XUR<span class="sc">@</span>meta.data<span class="sc">$</span>seurat_clusters),</span>
+<span id="cb67-23"><a href="#cb67-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">function</span>(cl) {</span>
+<span id="cb67-24"><a href="#cb67-24" aria-hidden="true" tabindex="-1"></a>            es.max.cl <span class="ot">=</span> <span class="fu">sort</span>(<span class="fu">rowSums</span>(es.max[, <span class="fu">rownames</span>(XUR<span class="sc">@</span>meta.data[XUR<span class="sc">@</span>meta.data<span class="sc">$</span>seurat_clusters <span class="sc">==</span></span>
+<span id="cb67-25"><a href="#cb67-25" aria-hidden="true" tabindex="-1"></a>                cl, ])]), <span class="at">decreasing =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb67-26"><a href="#cb67-26" aria-hidden="true" tabindex="-1"></a>            <span class="fu">head</span>(<span class="fu">data.frame</span>(<span class="at">cluster =</span> cl, <span class="at">type =</span> <span class="fu">names</span>(es.max.cl), <span class="at">scores =</span> es.max.cl,</span>
+<span id="cb67-27"><a href="#cb67-27" aria-hidden="true" tabindex="-1"></a>                <span class="at">ncells =</span> <span class="fu">sum</span>(XUR<span class="sc">@</span>meta.data<span class="sc">$</span>seurat_clusters <span class="sc">==</span> cl)), <span class="dv">10</span>)</span>
+<span id="cb67-28"><a href="#cb67-28" aria-hidden="true" tabindex="-1"></a>        }))</span>
+<span id="cb67-29"><a href="#cb67-29" aria-hidden="true" tabindex="-1"></a>    sctype_scores <span class="ot">&lt;-</span> cL_resutls <span class="sc">%&gt;%</span></span>
+<span id="cb67-30"><a href="#cb67-30" aria-hidden="true" tabindex="-1"></a>        <span class="fu">group_by</span>(cluster) <span class="sc">%&gt;%</span></span>
+<span id="cb67-31"><a href="#cb67-31" aria-hidden="true" tabindex="-1"></a>        <span class="fu">top_n</span>(<span class="at">n =</span> <span class="dv">1</span>, <span class="at">wt =</span> scores)</span>
+<span id="cb67-32"><a href="#cb67-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb67-33"><a href="#cb67-33" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Set low-confident (low ScType score) clusters to 'unknown'</span></span>
+<span id="cb67-34"><a href="#cb67-34" aria-hidden="true" tabindex="-1"></a>    sctype_scores<span class="sc">$</span>type[<span class="fu">as.numeric</span>(<span class="fu">as.character</span>(sctype_scores<span class="sc">$</span>scores)) <span class="sc">&lt;</span> sctype_scores<span class="sc">$</span>ncells<span class="sc">/</span><span class="dv">4</span>] <span class="ot">&lt;-</span> <span class="st">"Unknown"</span></span>
+<span id="cb67-35"><a href="#cb67-35" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Store sctype_scores in the list</span></span>
+<span id="cb67-36"><a href="#cb67-36" aria-hidden="true" tabindex="-1"></a>    sctype_scores_list[[t]] <span class="ot">&lt;-</span> sctype_scores[, <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]</span>
+<span id="cb67-37"><a href="#cb67-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb67-38"><a href="#cb67-38" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calculate sum of scores for the current tissue and store it in the</span></span>
+<span id="cb67-39"><a href="#cb67-39" aria-hidden="true" tabindex="-1"></a>    <span class="co"># score_sum_list</span></span>
+<span id="cb67-40"><a href="#cb67-40" aria-hidden="true" tabindex="-1"></a>    score_sum_list[[t]] <span class="ot">&lt;-</span> <span class="fu">sum</span>(sctype_scores<span class="sc">$</span>scores)</span>
+<span id="cb67-41"><a href="#cb67-41" aria-hidden="true" tabindex="-1"></a>    <span class="co"># XUR[['scType_labels']] &lt;-</span></span>
+<span id="cb67-42"><a href="#cb67-42" aria-hidden="true" tabindex="-1"></a>    <span class="co"># sctype_scores$type[match(XUR@meta.data$seurat_clusters,</span></span>
+<span id="cb67-43"><a href="#cb67-43" aria-hidden="true" tabindex="-1"></a>    <span class="co"># sctype_scores$cluster)] DimPlot(XUR, reduction = 'umap', label = TRUE,</span></span>
+<span id="cb67-44"><a href="#cb67-44" aria-hidden="true" tabindex="-1"></a>    <span class="co"># repel = TRUE, group.by = 'scType_labels')</span></span>
+<span id="cb67-45"><a href="#cb67-45" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Now analyzing for tissue Brain ...
+Now analyzing for tissue Immune system ...
+Now analyzing for tissue Pancreas ...
+Now analyzing for tissue Liver ...
+Now analyzing for tissue Eye ...
+Now analyzing for tissue Kidney ...
+Now analyzing for tissue Brain ...
+Now analyzing for tissue Lung ...
+Now analyzing for tissue Adrenal ...
+Now analyzing for tissue Heart ...
+Now analyzing for tissue Intestine ...
+Now analyzing for tissue Muscle ...
+Now analyzing for tissue Placenta ...
+Now analyzing for tissue Spleen ...
+Now analyzing for tissue Stomach ...
+Now analyzing for tissue Thymus ...</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine tissue names and corresponding score sums into a data frame</span></span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>score_sum_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">tissue =</span> <span class="fu">names</span>(score_sum_list), <span class="at">score_sum =</span> <span class="fu">unlist</span>(score_sum_list))</span>
+<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a>score_sum_df <span class="ot">&lt;-</span> score_sum_df <span class="sc">%&gt;%</span></span>
+<span id="cb69-4"><a href="#cb69-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">arrange</span>(score_sum)</span>
+<span id="cb69-5"><a href="#cb69-5" aria-hidden="true" tabindex="-1"></a>score_sum_df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                     tissue score_sum
+Spleen               Spleen  619.6375
+Muscle               Muscle  757.4468
+Adrenal             Adrenal 1258.0906
+Immune system Immune system 1656.4424
+Brain                 Brain 1715.0320
+Placenta           Placenta 1802.5725
+Eye                     Eye 1969.7188
+Stomach             Stomach 1997.7804
+Pancreas           Pancreas 2065.4185
+Intestine         Intestine 2277.1044
+Thymus               Thymus 2317.5164
+Heart                 Heart 2477.1157
+Liver                 Liver 2812.2559
+Kidney               Kidney 3312.0592
+Lung                   Lung 4293.6004</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a bar plot using ggplot2 with the ordered dataframe</span></span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(score_sum_df, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(tissue, score_sum), <span class="at">y =</span> score_sum, <span class="at">fill =</span> tissue)) <span class="sc">+</span></span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> <span class="co">#scale_fill_brewer(palette = 'RdPu',type = 'seq') +  # Set the fill color scale geom_bar(stat</span></span>
+<span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> <span class="co">#scale_fill_brewer(palette = 'RdPu',type = 'seq') +  # Set the fill color scale =</span></span>
+<span id="cb71-5"><a href="#cb71-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> <span class="co">#scale_fill_brewer(palette = 'RdPu',type = 'seq') +  # Set the fill color scale "identity",</span></span>
+<span id="cb71-6"><a href="#cb71-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> <span class="co">#scale_fill_brewer(palette = 'RdPu',type = 'seq') +  # Set the fill color scale color</span></span>
+<span id="cb71-7"><a href="#cb71-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> <span class="co">#scale_fill_brewer(palette = 'RdPu',type = 'seq') +  # Set the fill color scale =</span></span>
+<span id="cb71-8"><a href="#cb71-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> <span class="co">#scale_fill_brewer(palette = 'RdPu',type = 'seq') +  # Set the fill color scale "black",</span></span>
+<span id="cb71-9"><a href="#cb71-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> <span class="co">#scale_fill_brewer(palette = 'RdPu',type = 'seq') +  # Set the fill color scale show.legend</span></span>
+<span id="cb71-10"><a href="#cb71-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> <span class="co">#scale_fill_brewer(palette = 'RdPu',type = 'seq') +  # Set the fill color scale =</span></span>
+<span id="cb71-11"><a href="#cb71-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> <span class="co">#scale_fill_brewer(palette = 'RdPu',type = 'seq') +  # Set the fill color scale FALSE)</span></span>
+<span id="cb71-12"><a href="#cb71-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> <span class="co">#scale_fill_brewer(palette = 'RdPu',type = 'seq') +  # Set the fill color scale +</span></span>
+<span id="cb71-13"><a href="#cb71-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> <span class="co">#scale_fill_brewer(palette = 'RdPu',type = 'seq') +  # Set the fill color scale #scale_fill_brewer(palette</span></span>
+<span id="cb71-14"><a href="#cb71-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> <span class="co">#scale_fill_brewer(palette = 'RdPu',type = 'seq') +  # Set the fill color scale =</span></span>
+<span id="cb71-15"><a href="#cb71-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> <span class="co">#scale_fill_brewer(palette = 'RdPu',type = 'seq') +  # Set the fill color scale 'RdPu',type</span></span>
+<span id="cb71-16"><a href="#cb71-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> <span class="co">#scale_fill_brewer(palette = 'RdPu',type = 'seq') +  # Set the fill color scale =</span></span>
+<span id="cb71-17"><a href="#cb71-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> <span class="co">#scale_fill_brewer(palette = 'RdPu',type = 'seq') +  # Set the fill color scale 'seq')</span></span>
+<span id="cb71-18"><a href="#cb71-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> <span class="co">#scale_fill_brewer(palette = 'RdPu',type = 'seq') +  # Set the fill color scale +</span></span>
+<span id="cb71-19"><a href="#cb71-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> <span class="co">#scale_fill_brewer(palette = 'RdPu',type = 'seq') +  # Set the fill color scale #</span></span>
+<span id="cb71-20"><a href="#cb71-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> <span class="co">#scale_fill_brewer(palette = 'RdPu',type = 'seq') +  # Set the fill color scale Set</span></span>
+<span id="cb71-21"><a href="#cb71-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> <span class="co">#scale_fill_brewer(palette = 'RdPu',type = 'seq') +  # Set the fill color scale the</span></span>
+<span id="cb71-22"><a href="#cb71-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> <span class="co">#scale_fill_brewer(palette = 'RdPu',type = 'seq') +  # Set the fill color scale fill</span></span>
+<span id="cb71-23"><a href="#cb71-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> <span class="co">#scale_fill_brewer(palette = 'RdPu',type = 'seq') +  # Set the fill color scale color</span></span>
+<span id="cb71-24"><a href="#cb71-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> <span class="co">#scale_fill_brewer(palette = 'RdPu',type = 'seq') +  # Set the fill color scale scale</span></span>
+<span id="cb71-25"><a href="#cb71-25" aria-hidden="true" tabindex="-1"></a><span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Sum of ScType Scores for Each Tissue"</span>, <span class="at">x =</span> <span class="st">"Tissue"</span>, <span class="at">y =</span> <span class="st">"Sum of Scores"</span>) <span class="sc">+</span></span>
+<span id="cb71-26"><a href="#cb71-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span> <span class="fu">coord_flip</span>()  <span class="co"># Flip the plot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Single_cell_analysis_of_unknown_cells_files/figure-html/Find_tissue-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="assign-cell-types-to-each-cluster-with-wrapper-function" class="level1">
+<h1>Assign cell types to each cluster with Wrapper function</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="co"># get cell-type by cell matrix</span></span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"https://raw.githubusercontent.com/kris-nader/sc-type/master/R/sctype_wrapper.R"</span>)</span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a>XUR <span class="ot">&lt;-</span> <span class="fu">run_sctype</span>(XUR, <span class="at">known_tissue_type =</span> <span class="st">"Brain"</span>, <span class="at">custom_marker_file =</span> db_, <span class="at">name =</span> <span class="st">"scType_labels"</span>,</span>
+<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Running with Seuratv5"</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Single_cell_analysis_of_unknown_cells_files/figure-html/wrapper_function-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "New metadata added:  scType_labels"</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="co"># prepare edges</span></span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>cL_resutls <span class="ot">&lt;-</span> cL_resutls[<span class="fu">order</span>(cL_resutls<span class="sc">$</span>cluster), ]</span>
+<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a>edges <span class="ot">=</span> cL_resutls</span>
+<span id="cb75-4"><a href="#cb75-4" aria-hidden="true" tabindex="-1"></a>edges<span class="sc">$</span>type <span class="ot">=</span> <span class="fu">paste0</span>(edges<span class="sc">$</span>type, <span class="st">"_"</span>, edges<span class="sc">$</span>cluster)</span>
+<span id="cb75-5"><a href="#cb75-5" aria-hidden="true" tabindex="-1"></a>edges<span class="sc">$</span>cluster <span class="ot">=</span> <span class="fu">paste0</span>(<span class="st">"cluster "</span>, edges<span class="sc">$</span>cluster)</span>
+<span id="cb75-6"><a href="#cb75-6" aria-hidden="true" tabindex="-1"></a>edges <span class="ot">=</span> edges[, <span class="fu">c</span>(<span class="st">"cluster"</span>, <span class="st">"type"</span>)]</span>
+<span id="cb75-7"><a href="#cb75-7" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(edges) <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"from"</span>, <span class="st">"to"</span>)</span>
+<span id="cb75-8"><a href="#cb75-8" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(edges) <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb75-9"><a href="#cb75-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-10"><a href="#cb75-10" aria-hidden="true" tabindex="-1"></a><span class="co"># prepare nodes</span></span>
+<span id="cb75-11"><a href="#cb75-11" aria-hidden="true" tabindex="-1"></a>nodes_lvl1 <span class="ot">&lt;-</span> sctype_scores[, <span class="fu">c</span>(<span class="st">"cluster"</span>, <span class="st">"ncells"</span>)]</span>
+<span id="cb75-12"><a href="#cb75-12" aria-hidden="true" tabindex="-1"></a>nodes_lvl1<span class="sc">$</span>cluster <span class="ot">=</span> <span class="fu">paste0</span>(<span class="st">"cluster "</span>, nodes_lvl1<span class="sc">$</span>cluster)</span>
+<span id="cb75-13"><a href="#cb75-13" aria-hidden="true" tabindex="-1"></a>nodes_lvl1<span class="sc">$</span>Colour <span class="ot">=</span> <span class="st">"#f1f1ef"</span></span>
+<span id="cb75-14"><a href="#cb75-14" aria-hidden="true" tabindex="-1"></a>nodes_lvl1<span class="sc">$</span>ord <span class="ot">=</span> <span class="dv">1</span></span>
+<span id="cb75-15"><a href="#cb75-15" aria-hidden="true" tabindex="-1"></a>nodes_lvl1<span class="sc">$</span>realname <span class="ot">=</span> nodes_lvl1<span class="sc">$</span>cluster</span>
+<span id="cb75-16"><a href="#cb75-16" aria-hidden="true" tabindex="-1"></a>nodes_lvl1 <span class="ot">=</span> <span class="fu">as.data.frame</span>(nodes_lvl1)</span>
+<span id="cb75-17"><a href="#cb75-17" aria-hidden="true" tabindex="-1"></a>nodes_lvl2 <span class="ot">=</span> <span class="fu">c</span>()</span>
+<span id="cb75-18"><a href="#cb75-18" aria-hidden="true" tabindex="-1"></a>ccolss <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"#5f75ae"</span>, <span class="st">"#92bbb8"</span>, <span class="st">"#64a841"</span>, <span class="st">"#e5486e"</span>, <span class="st">"#de8e06"</span>, <span class="st">"#eccf5a"</span>, <span class="st">"#b5aa0f"</span>,</span>
+<span id="cb75-19"><a href="#cb75-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">"#e4b680"</span>, <span class="st">"#7ba39d"</span>, <span class="st">"#b15928"</span>, <span class="st">"#ffff99"</span>, <span class="st">"#6a3d9a"</span>, <span class="st">"#cab2d6"</span>, <span class="st">"#ff7f00"</span>,</span>
+<span id="cb75-20"><a href="#cb75-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">"#fdbf6f"</span>, <span class="st">"#e31a1c"</span>, <span class="st">"#fb9a99"</span>, <span class="st">"#33a02c"</span>, <span class="st">"#b2df8a"</span>, <span class="st">"#1f78b4"</span>, <span class="st">"#a6cee3"</span>)</span>
+<span id="cb75-21"><a href="#cb75-21" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(<span class="fu">unique</span>(cL_resutls<span class="sc">$</span>cluster))) {</span>
+<span id="cb75-22"><a href="#cb75-22" aria-hidden="true" tabindex="-1"></a>    dt_tmp <span class="ot">=</span> cL_resutls[cL_resutls<span class="sc">$</span>cluster <span class="sc">==</span> <span class="fu">unique</span>(cL_resutls<span class="sc">$</span>cluster)[i], ]</span>
+<span id="cb75-23"><a href="#cb75-23" aria-hidden="true" tabindex="-1"></a>    nodes_lvl2 <span class="ot">=</span> <span class="fu">rbind</span>(nodes_lvl2, <span class="fu">data.frame</span>(<span class="at">cluster =</span> <span class="fu">paste0</span>(dt_tmp<span class="sc">$</span>type, <span class="st">"_"</span>,</span>
+<span id="cb75-24"><a href="#cb75-24" aria-hidden="true" tabindex="-1"></a>        dt_tmp<span class="sc">$</span>cluster), <span class="at">ncells =</span> dt_tmp<span class="sc">$</span>scores, <span class="at">Colour =</span> ccolss[i], <span class="at">ord =</span> <span class="dv">2</span>, <span class="at">realname =</span> dt_tmp<span class="sc">$</span>type))</span>
+<span id="cb75-25"><a href="#cb75-25" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb75-26"><a href="#cb75-26" aria-hidden="true" tabindex="-1"></a>nodes <span class="ot">&lt;-</span> <span class="fu">rbind</span>(nodes_lvl1, nodes_lvl2)</span>
+<span id="cb75-27"><a href="#cb75-27" aria-hidden="true" tabindex="-1"></a>nodes<span class="sc">$</span>ncells[nodes<span class="sc">$</span>ncells <span class="sc">&lt;</span> <span class="dv">1</span>] <span class="ot">=</span> <span class="dv">1</span></span>
+<span id="cb75-28"><a href="#cb75-28" aria-hidden="true" tabindex="-1"></a>files_db <span class="ot">&lt;-</span> openxlsx<span class="sc">::</span><span class="fu">read.xlsx</span>(db_)[, <span class="fu">c</span>(<span class="st">"cellName"</span>, <span class="st">"shortName"</span>)]</span>
+<span id="cb75-29"><a href="#cb75-29" aria-hidden="true" tabindex="-1"></a>files_db <span class="ot">=</span> <span class="fu">unique</span>(files_db)</span>
+<span id="cb75-30"><a href="#cb75-30" aria-hidden="true" tabindex="-1"></a>nodes <span class="ot">=</span> <span class="fu">merge</span>(nodes, files_db, <span class="at">all.x =</span> T, <span class="at">all.y =</span> F, <span class="at">by.x =</span> <span class="st">"realname"</span>, <span class="at">by.y =</span> <span class="st">"cellName"</span>,</span>
+<span id="cb75-31"><a href="#cb75-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">sort =</span> F)</span>
+<span id="cb75-32"><a href="#cb75-32" aria-hidden="true" tabindex="-1"></a>nodes<span class="sc">$</span>shortName[<span class="fu">is.na</span>(nodes<span class="sc">$</span>shortName)] <span class="ot">=</span> nodes<span class="sc">$</span>realname[<span class="fu">is.na</span>(nodes<span class="sc">$</span>shortName)]</span>
+<span id="cb75-33"><a href="#cb75-33" aria-hidden="true" tabindex="-1"></a>nodes <span class="ot">=</span> nodes[, <span class="fu">c</span>(<span class="st">"cluster"</span>, <span class="st">"ncells"</span>, <span class="st">"Colour"</span>, <span class="st">"ord"</span>, <span class="st">"shortName"</span>, <span class="st">"realname"</span>)]</span>
+<span id="cb75-34"><a href="#cb75-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-35"><a href="#cb75-35" aria-hidden="true" tabindex="-1"></a>mygraph <span class="ot">&lt;-</span> <span class="fu">graph_from_data_frame</span>(edges, <span class="at">vertices =</span> nodes)</span>
+<span id="cb75-36"><a href="#cb75-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-37"><a href="#cb75-37" aria-hidden="true" tabindex="-1"></a><span class="co"># Make the graph</span></span>
+<span id="cb75-38"><a href="#cb75-38" aria-hidden="true" tabindex="-1"></a>gggr <span class="ot">&lt;-</span> <span class="fu">ggraph</span>(mygraph, <span class="at">layout =</span> <span class="st">"circlepack"</span>, <span class="at">weight =</span> <span class="fu">I</span>(ncells)) <span class="sc">+</span> <span class="fu">geom_node_circle</span>(<span class="fu">aes</span>(<span class="at">filter =</span> ord <span class="sc">==</span></span>
+<span id="cb75-39"><a href="#cb75-39" aria-hidden="true" tabindex="-1"></a>    <span class="dv">1</span>, <span class="at">fill =</span> <span class="fu">I</span>(<span class="st">"#F5F5F5"</span>), <span class="at">colour =</span> <span class="fu">I</span>(<span class="st">"#D3D3D3"</span>)), <span class="at">alpha =</span> <span class="fl">0.9</span>) <span class="sc">+</span> <span class="fu">geom_node_circle</span>(<span class="fu">aes</span>(<span class="at">filter =</span> ord <span class="sc">==</span></span>
+<span id="cb75-40"><a href="#cb75-40" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>, <span class="at">fill =</span> <span class="fu">I</span>(Colour), <span class="at">colour =</span> <span class="fu">I</span>(<span class="st">"#D3D3D3"</span>)), <span class="at">alpha =</span> <span class="fl">0.9</span>) <span class="sc">+</span> <span class="fu">theme_void</span>() <span class="sc">+</span> <span class="fu">geom_node_text</span>(<span class="fu">aes</span>(<span class="at">filter =</span> ord <span class="sc">==</span></span>
+<span id="cb75-41"><a href="#cb75-41" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>, <span class="at">label =</span> shortName, <span class="at">colour =</span> <span class="fu">I</span>(<span class="st">"#ffffff"</span>), <span class="at">fill =</span> <span class="st">"white"</span>, <span class="at">repel =</span> <span class="sc">!</span><span class="dv">1</span>, <span class="at">parse =</span> T,</span>
+<span id="cb75-42"><a href="#cb75-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="fu">I</span>(<span class="fu">log</span>(ncells, <span class="dv">25</span>) <span class="sc">*</span> <span class="fl">1.5</span>))) <span class="sc">+</span> <span class="fu">geom_node_label</span>(<span class="fu">aes</span>(<span class="at">filter =</span> ord <span class="sc">==</span> <span class="dv">1</span>, <span class="at">label =</span> shortName,</span>
+<span id="cb75-43"><a href="#cb75-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="fu">I</span>(<span class="st">"#000000"</span>), <span class="at">size =</span> <span class="fu">I</span>(<span class="dv">3</span>), <span class="at">fill =</span> <span class="st">"white"</span>, <span class="at">parse =</span> T), <span class="at">repel =</span> <span class="sc">!</span><span class="dv">0</span>, <span class="at">segment.linetype =</span> <span class="st">"dotted"</span>)</span>
+<span id="cb75-44"><a href="#cb75-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-45"><a href="#cb75-45" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(XUR, <span class="at">reduction =</span> <span class="st">"umap"</span>, <span class="at">label =</span> <span class="cn">TRUE</span>, <span class="at">repel =</span> <span class="cn">TRUE</span>, <span class="at">cols =</span> ccolss) <span class="sc">+</span> gggr</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Single_cell_analysis_of_unknown_cells_files/figure-html/booble_plot-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
