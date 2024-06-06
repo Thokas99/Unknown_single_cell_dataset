@@ -17,7 +17,7 @@ Analysis of an unknown single-cell dataset for [Single Cell and Spatial Omics](h
 - **PCA**: Perform Principal Component Analysis to reduce data dimensionality.
 - **UMAP/t-SNE**: Further reduce dimensions for visualization using UMAP or t-SNE.
 <div align="center">
-  <img src="figure-html/umap-1.png" alt="drawing" width="300"/>
+  <img src="figure-html/umap-1.png" alt="drawing" width="500"/>
 </div>
 
 ### 4. Clustering
