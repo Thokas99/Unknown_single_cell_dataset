@@ -16,6 +16,9 @@ Analysis of an unknown single-cell dataset for [Single Cell and Spatial Omics](h
 ### 3. Dimensionality Reduction
 - **PCA**: Perform Principal Component Analysis to reduce data dimensionality.
 - **UMAP/t-SNE**: Further reduce dimensions for visualization using UMAP or t-SNE.
+<div align="center">
+  <img src="figure-html/umap-1.png" alt="drawing" width="300"/>
+</div>
 
 ### 4. Clustering
 - **Clustering**: Group cells into clusters using the Louvain or Leiden algorithm based on gene expression patterns.
@@ -36,7 +39,6 @@ This analysis was conducted using the following R packages:
 - [Seurat](https://satijalab.org/seurat/): An R package designed for QC, analysis, and exploration of single-cell RNA-seq data.
 - [ggplot2](https://ggplot2.tidyverse.org/): An R package for data visualization based on the grammar of graphics.
 - [tidyverse](https://www.tidyverse.org/): A collection of R packages for data manipulation and visualization, including ggplot2.
-
 
 <div align="center">
   <img src="figure-html/uni_logo.jpg" alt="drawing" width="300"/>
