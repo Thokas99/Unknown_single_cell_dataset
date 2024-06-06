@@ -39,5 +39,5 @@ This analysis was conducted using the following R packages:
 
 
 <div align="center">
-  <img src="img/uni_logo.jpg" alt="drawing" width="300"/>
+  <img src="figure-html/uni_logo.jpg" alt="drawing" width="300"/>
 </div>
