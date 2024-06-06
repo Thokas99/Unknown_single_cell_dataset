@@ -36,9 +36,14 @@ Analysis of an unknown single-cell dataset for [Single Cell and Spatial Omics](h
 ## Credits
 
 This analysis was conducted using the following R packages:
-- [Seurat](https://satijalab.org/seurat/): An R package designed for QC, analysis, and exploration of single-cell RNA-seq data.
-- [ggplot2](https://ggplot2.tidyverse.org/): An R package for data visualization based on the grammar of graphics.
-- [tidyverse](https://www.tidyverse.org/): A collection of R packages for data manipulation and visualization, including ggplot2.
+- [**Seurat**](https://satijalab.org/seurat/): An R package designed for QC, analysis, and exploration of single-cell RNA-seq data.
+- [**ggplot2**](https://ggplot2.tidyverse.org/): An R package for data visualization based on the grammar of graphics.
+- [**tidyverse**](https://www.tidyverse.org/): A collection of R packages for data manipulation and visualization, including ggplot2.
+- [**patchwork**](https://patchwork.data-imaginist.com/): An R package to combine separate ggplots into a single graphic.
+- [**HGNChelper**](https://cran.r-project.org/web/packages/HGNChelper/index.html): Functions for identifying and correcting HGNC human gene symbols and MGI mouse gene symbols.
+- [**ggraph**](https://ggraph.data-imaginist.com/): Visualization of graph networks using ggplot2.
+- [**igraph**](https://igraph.org/r/): Network analysis and visualization.
+- [**data.tree**](https://cran.r-project.org/web/packages/data.tree/index.html): Create and manipulate tree structures from hierarchical data.
 
 <div align="center">
   <img src="figure-html/uni_logo.jpg" alt="drawing" width="300"/>
